@@ -1,0 +1,20 @@
+version: '3.7'
+services:
+    lstm-autoencoder-seq2seq:
+        build:
+             context: ./code/
+        container_name: lstm-autoencoder-seq2seq
+        image: lstm-autoencoder-seq2seq:latest
+        volumes:
+           - type: bind
+             source: ./code/
+             target: /opt/lstm-autoencoder-seq2seq/
+
+           - type: bind
+             source: ./data_and_extra
+             target: /opt/data_and_extra
+
+        stdin_open: true # docker run -i
+        tty: true # docker run -t
+        ipc: host
+        network_mode: 'host'
