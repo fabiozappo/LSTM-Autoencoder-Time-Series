@@ -17,7 +17,7 @@ if __name__ == '__main__':
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     seq_len, n_features = 140, 1
-    batch_size = 8
+    batch_size = 512
 
     model = RecurrentAutoencoder(seq_len, n_features=n_features, embedding_dim=128, device=device, batch_size=batch_size)
 
@@ -38,7 +38,7 @@ if __name__ == '__main__':
     history = dict(train=[], val=[])
     best_model_wts = copy.deepcopy(model.state_dict())
     best_loss = 10000.0
-    for epoch in range(1, n_epochs + 1):
+    for epoch in tqdm(range(1, n_epochs + 1)):
         model = model.train()
         train_losses = []
         for i, seq_true in enumerate(dataloader):
