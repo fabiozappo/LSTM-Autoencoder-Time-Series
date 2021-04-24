@@ -1,9 +1,5 @@
-import os
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
-import glob
-from tqdm import tqdm
-import pandas as pd
 from arff2pandas import a2p
 from sklearn.model_selection import train_test_split
 import torch
@@ -11,7 +7,10 @@ import torch
 # http://timeseriesclassification.com/description.php?Dataset=ECG5000
 class ECG5000(Dataset):
 
-    def __init__(self):
+    def __init__(self, mode):
+
+        assert mode in ['normal', 'anomaly']
+
         trainset_file = '/opt/data_and_extra/ECG5000/ECG5000_TRAIN.arff'
         testset_file = '/opt/data_and_extra/ECG5000/ECG5000_TEST.arff'
 
@@ -22,14 +21,29 @@ class ECG5000(Dataset):
 
         df = train.append(test)
 
-        # drop label
-        df = df.iloc[:, :-1]
+        # split in normal and anomaly data, then drop label
+        CLASS_NORMAL = 1
+        new_columns = list(df.columns)
+        new_columns[-1] = 'target'
+        df.columns = new_columns
 
-        train_df, val_df = train_test_split(
-            df,
-            test_size=0.15,
-            random_state=2
-        )
+        if mode == 'normal':
+            df = df[df.target == str(CLASS_NORMAL)].drop(labels='target', axis=1)
+        else:
+            df = df[df.target != str(CLASS_NORMAL)].drop(labels='target', axis=1)
+
+        print(df.shape)
+        # train_df, val_df = train_test_split(
+        #     normal_df,
+        #     test_size=0.15,
+        #     random_state=random_seed
+        # )
+        #
+        # val_df, test_df = train_test_split(
+        #     val_df,
+        #     test_size=0.33,
+        #     random_state=random_seed
+        # )
 
         self.X = df.astype(np.float32).to_numpy()
 
